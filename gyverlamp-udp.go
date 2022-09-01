@@ -9,40 +9,32 @@ const (
 	DefaultGroup uint16 = 1
 )
 
-// GyverLamp structure for communicating with GyverLamp via Broadcast
+// GyverLamp describes the control methods of GyverLamp
+type GyverLamp interface{}
+
+// GyverLampImpl structure for communicating with GyverLamp via Broadcast
 //
-// # IP - Broadcast IP of your network,
-//
-// # UDPPort - Formed from the Group number and GLKey, you can use the ComputeUDPPort function to calculate
-//
-// # Group - The group in which the lamps are located
-//
-// # GLKey - Network key, you can find it in the firmware, define GL_KEY
-type GyverLamp struct {
-	IP      net.IP
-	UDPPort uint16
-	Group   uint16
-	GLKey   string
+// UDPAddress - Broadcast IP of your network with Port, formed from the Group number and GLKey
+// PacketConnection - Connection for sending broadcast messages
+type GyverLampImpl struct {
+	UDPAddress       *net.UDPAddr
+	PacketConnection net.PacketConn
 }
 
 // NewGyverLamp is constructor of GyverLamp
 //
-// # IP - Broadcast IP of your network,
-//
-// # UDPPort - Formed from the Group number and GLKey, you can use the ComputeUDPPort function to calculate
-//
-// # Group - The group in which the lamps are located
-//
-// # GLKey - Network key, you can find it in the firmware, define GL_KEY
-//
-// Return copy of GyverLamp
-func NewGyverLamp(IP net.IP, UDPPort uint16, group uint16, GLKey string) GyverLamp {
-	return GyverLamp{
-		IP:      IP,
-		UDPPort: UDPPort,
-		Group:   group,
-		GLKey:   GLKey,
+// IP - Broadcast IP of your network,
+// UDPPort - Formed from the Group number and GLKey, you can use the ComputeUDPPort function to calculate
+func NewGyverLamp(IP net.IP, UDPPort uint16) (gyverLamp GyverLamp) {
+	UDPAddress := net.UDPAddr{
+		IP:   IP,
+		Port: int(UDPPort),
 	}
+	gyverLamp = &GyverLampImpl{
+		UDPAddress: &UDPAddress,
+	}
+
+	return gyverLamp
 }
 
 // ComputeUDPPort calculates the port for UDP Broadcast GyverLamp in the group
