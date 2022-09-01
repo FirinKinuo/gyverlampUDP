@@ -63,3 +63,11 @@ func TestComputeUDPPort(t *testing.T) {
 				testCase.Group))
 	}
 }
+
+func TestGyverLampImpl_CreateNewConnection(t *testing.T) {
+	gl := GyverLampImpl{UDPAddress: &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 1}}
+
+	err := gl.CreateNewConnection()
+	require.NoError(t, err)
+	require.NotNil(t, gl.PacketConnection)
+}

@@ -1,6 +1,7 @@
 package gyverlampUDP
 
 import (
+	"fmt"
 	"net"
 )
 
@@ -10,7 +11,9 @@ const (
 )
 
 // GyverLamp describes the control methods of GyverLamp
-type GyverLamp interface{}
+type GyverLamp interface {
+	CreateNewConnection() error
+}
 
 // GyverLampImpl structure for communicating with GyverLamp via Broadcast
 //
@@ -50,4 +53,16 @@ func ComputeUDPPort(GLKey string, group uint16) (port uint16) {
 	port = (port % 15000) + 50000 + group // Reduce to the range from 50001 to 65010
 
 	return port
+}
+
+// CreateNewConnection creates a Broadcast connection and adds to the GyverLampImpl PacketConnection
+func (gyverLamp *GyverLampImpl) CreateNewConnection() error {
+	conn, err := net.ListenPacket("udp4", fmt.Sprintf(":%d", gyverLamp.UDPAddress.Port))
+	if err != nil {
+		return fmt.Errorf("unable to create connection to Gyver Lamp %s, %w", gyverLamp.UDPAddress.String(), err)
+	}
+
+	gyverLamp.PacketConnection = conn
+
+	return nil
 }
