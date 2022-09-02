@@ -13,6 +13,8 @@ const (
 // GyverLamp describes the control methods of GyverLamp
 type GyverLamp interface {
 	CreateNewConnection() error
+	TurnOn() error
+	TurnOff() error
 }
 
 // GyverLampImpl structure for communicating with GyverLamp via Broadcast
@@ -63,6 +65,39 @@ func (gyverLamp *GyverLampImpl) CreateNewConnection() error {
 	}
 
 	gyverLamp.PacketConnection = conn
+
+	return nil
+}
+
+func (gyverLamp *GyverLampImpl) sendBroadcastMessage(message []byte) error {
+	_, err := gyverLamp.PacketConnection.WriteTo(message, gyverLamp.UDPAddress)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TurnOff sends a command to turn off the light
+func (gyverLamp *GyverLampImpl) TurnOff() error {
+	commandTurnOff := []byte{0x47, 0x4c, 0x2c, 0x30, 0x2c, 0x30}
+
+	err := gyverLamp.sendBroadcastMessage(commandTurnOff)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// TurnOn sends a command to turn on the light
+func (gyverLamp *GyverLampImpl) TurnOn() error {
+	commandTurnOn := []byte{0x47, 0x4c, 0x2c, 0x30, 0x2c, 0x31}
+
+	err := gyverLamp.sendBroadcastMessage(commandTurnOn)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
