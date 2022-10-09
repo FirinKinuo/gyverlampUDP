@@ -13,7 +13,7 @@ func TestNewGyverLamp(t *testing.T) {
 		IP      net.IP
 		UDPPort uint16
 		Group   uint16
-		GLKey   string
+		GLKey   []byte
 	}{
 		IP:      net.IPv4(127, 0, 0, 1),
 		UDPPort: 61197,
@@ -21,20 +21,21 @@ func TestNewGyverLamp(t *testing.T) {
 		GLKey:   DefaultGLKey,
 	}
 
-	expectGyverLamp := &GyverLampImpl{
+	expectGyverLamp := &GyverLamp{
 		UDPAddress: &net.UDPAddr{
 			IP:   net.IPv4(127, 0, 0, 1),
 			Port: 61197,
 		},
+		GLKey: DefaultGLKey,
 	}
 
-	actualGyverLamp := NewGyverLamp(payload.IP, payload.UDPPort)
+	actualGyverLamp := NewGyverLamp(payload.IP, payload.UDPPort, DefaultGLKey)
 	require.Equal(t, expectGyverLamp, actualGyverLamp)
 }
 
 func TestComputeUDPPort(t *testing.T) {
 	testCases := []struct {
-		GLKey  string
+		GLKey  []byte
 		Group  uint16
 		Expect uint16
 	}{
@@ -64,8 +65,8 @@ func TestComputeUDPPort(t *testing.T) {
 	}
 }
 
-func TestGyverLampImpl_CreateNewConnection(t *testing.T) {
-	gl := GyverLampImpl{UDPAddress: &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 1}}
+func TestGyverLamp_CreateNewConnection(t *testing.T) {
+	gl := GyverLamp{UDPAddress: &net.UDPAddr{IP: net.IPv4(127, 0, 0, 1), Port: 1}}
 
 	err := gl.CreateNewConnection()
 	require.NoError(t, err)
